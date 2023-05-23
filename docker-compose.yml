@@ -1,0 +1,14 @@
+version: '1.0'
+services:
+  frontend:
+    image: llama-frontend
+    environment: 
+      PORT: 80
+      PROXY_API: 
+    ports:
+      - 80:80
+  webserver:
+    #change to llama-web-server for the original llama weights
+    image: panda-web-server
+    ports:
+      - 8000:8000
