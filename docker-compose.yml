@@ -1,7 +1,7 @@
 version: '1.0'
 services:
   frontend:
-    image: divinaventi/llama-frontend
+    image: divinaventi/llama-frontend:prodv1
     environment: 
       PORT: 80
       PROXY_API: 

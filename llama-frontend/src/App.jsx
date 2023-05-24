@@ -24,17 +24,19 @@ function App() {
     try {
       setLoading(true);
 
+      //             "content": `\n\n### Instructions:\n${JSON.stringify({prompt})}\n\n### Response:\n`,
       const data = {
         messages: [
           {
             "role": "system",
-            "content": "You are a helpful assistant."
+            "content": "You are a helpful assistant. Provide helpful and informative responses in a concise and complete manner. Please avoid using conversational tags and only reply in full sentences. Ensure that your answers are presented directly and without the use of 'Human:' or '###'. Thank you for your cooperation!"
           },
           {
             "role": "user",
-            "content": `${JSON.stringify({prompt})}\n`,
+            "content": `${JSON.stringify({prompt})}`,
           }
-        ]
+        ],
+        max_tokens: 64
       }
 
       const requestOptions = {
