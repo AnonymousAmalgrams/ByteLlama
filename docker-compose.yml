@@ -8,7 +8,8 @@ services:
     ports:
       - 80:80
   webserver:
-    #change to llama-web-server for the original llama weights
+    #change to llama-web-server for the original llama weights and openllama-web-server
+    #for the open sourced llama weights
     image: divinaventi/panda-web-server
     ports:
       - 8000:8000
