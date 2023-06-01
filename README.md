@@ -1,6 +1,7 @@
 # Quick start instructions
 
 ```bash
+docker pull divinaventi/openllama-web-server
 docker pull divinaventi/llama-web-server
 docker pull divinaventi/panda-web-server
 docker pull divinaventi/llama-frontend
