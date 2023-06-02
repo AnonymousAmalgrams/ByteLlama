@@ -27,7 +27,7 @@ function App() {
 
   const [enter, setEnter] = useState(false);
 
-  const defaultRole = "You are a helpful assistant. Provide helpful and informative responses in a concise and complete manner without using conversational tags. Ensure that your answers are presented directly, in full sentences, and without the use of 'Human:' or '###'. Thank you for your cooperation!";
+  const defaultRole = "You are a helpful assistant. Provide helpful and informative responses in a concise and complete manner. Please avoid using conversational tags and only reply in full sentences. Ensure that your answers are presented directly and without the use of 'Human:' or '###'. Thank you for your cooperation!"
   const [roleState, setRoleState] = useState(null);
 
   const [maxTokState, setMaxTokState] = useState(null);
@@ -46,8 +46,12 @@ function App() {
     }
   }, [prompt]);
 
+  const enterHandler = () => {
+    setEnter(true);
+    sendPrompt(new KeyboardEvent('keydown', {key: 'Enter'}));
+  }
+
   const sendPrompt = async (event) => {
-    if(!touched)
     if (event.key !== "Enter") {
       return;
     }
@@ -57,7 +61,7 @@ function App() {
 
       // "content": `\n\n### Instructions:\n${JSON.stringify({prompt})}\n\n### Response:\n`,
 
-      const init_data = {
+      const data = {
         messages: [
           {
             "role": "system",
@@ -169,12 +173,12 @@ function App() {
         <h2
           className="settings-header2"
         >
-          Tokens in contex window:
+          Tokens in contex window (currently unsupported):
         </h2>
 
         <input
           type="number"
-          placeholder="default is "
+          placeholder="default is 1, ignored"
           className="settings_input"
           onChange={(e) => setNState(e.target.value)}
         >
@@ -189,7 +193,7 @@ function App() {
         <input
           type="number"
           className="settings_input"
-          placeholder="default is .95"
+          placeholder="default is 0.8"
           onChange={(e) => setTempState(e.target.value)}
         >
         </input>
@@ -202,7 +206,7 @@ function App() {
 
         <input
           type="number"
-          placeholder="default is "
+          placeholder="default is 0.95"
           className="settings_input"
           onChange={(e) => setPState(e.target.value)}
         >
@@ -216,7 +220,7 @@ function App() {
 
         <input
           type="number"
-          placeholder="default is "
+          placeholder="default is 40"
           className="settings_input"
           onChange={(e) => setKState(e.target.value)}
         >
@@ -230,7 +234,7 @@ function App() {
 
         <input
           type="text"
-          placeholder="default is "
+          placeholder="default is to use no stop tokens"
           className="settings_input"
           onChange={(e) => setStopState(e.target.value)}
         >
@@ -244,7 +248,7 @@ function App() {
 
         <input
           type="number"
-          placeholder="default is "
+          placeholder="default is 0"
           className="settings_input"
           onChange={(e) => setPPenState(e.target.value)}
         >
@@ -258,7 +262,7 @@ function App() {
 
         <input
           type="number"
-          placeholder="default is "
+          placeholder="default is 0"
           className="settings_input"
           onChange={(e) => setFreqPenState(e.target.value)}
         >
@@ -272,7 +276,7 @@ function App() {
 
         <input
           type="number"
-          placeholder="default is "
+          placeholder="default is 1.1"
           className="settings_input"
           onChange={(e) => setRepeatPenState(e.target.value)}
         >
@@ -315,7 +319,7 @@ function App() {
         <button 
           className="enter_button"
           style={{ opacity: enter ? 0.5 : 1, transition: 'opacity 300ms ease' }}
-          onMouseDown={(e) => {setEnter(true); sendPrompt(e)}}
+          onMouseDown={enterHandler}
           onMouseUp={() => setEnter(false)}      
         >
           Enter
