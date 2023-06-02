@@ -27,7 +27,7 @@ function App() {
 
   const [enter, setEnter] = useState(false);
 
-  const defaultRole = "You are a helpful assistant. Provide helpful and informative responses in a concise and complete manner. Please avoid using conversational tags and only reply in full sentences. Ensure that your answers are presented directly and without the use of 'Human:' or '###'. Thank you for your cooperation!"
+  const defaultRole = "You are a helpful assistant. Provide helpful and informative responses in a concise and complete manner. Please avoid using conversational tags and only reply in full sentences. Ensure that your answers are presented directly and without the use of 'Human:' or '###'. Thank you for your cooperation!";
   const [roleState, setRoleState] = useState(null);
 
   const [maxTokState, setMaxTokState] = useState(null);
