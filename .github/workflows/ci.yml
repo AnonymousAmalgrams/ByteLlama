@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'info'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Install apt-get packages
+      run: |
+        sudo ACCEPT_EULA=Y apt-get update
+        sudo ACCEPT_EULA=Y apt-get upgrade
+        sudo apt-get install wget git curl software-properties-common build-essential python3 libopenblas-dev ninja-build
+
+    - name: Install python packages, build backend server
+      uses: actions/setup-python@v4
+      run: 
+        python -m pip install --upgrade pip pytest cmakee scikit-build setuptools fastapi uvicorn s-starlette
+        LLAMAOPENBLAS=1 python3 setup.py develop
+      working-directory: llama-cpp-python
+    
+    - name: Install node packages
+      uses: actions/setup-node@v3
+      working-directory: llama-frontend
