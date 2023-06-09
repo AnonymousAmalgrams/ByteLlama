@@ -1,0 +1,16 @@
+"data": {
+        "messages": [
+          {
+            "role": "system",
+            ...(roleState ? {"content" : roleState} : {"content": defaultRole})
+          },
+          {
+            "role": "user",
+            "content": `${JSON.stringify({prompt})}`,
+          }
+        ]
+}
+"headers": { 
+          "Content-Type": "application/json", 
+          "Accept" : "application/json" 
+        }  
