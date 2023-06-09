@@ -47,7 +47,7 @@ jobs:
         python -m pip install --upgrade pip pytest cmakee scikit-build setuptools fastapi uvicorn s-starlette libopenblas
         
     - name: Build backend server
-      run:
+      run: |
         cd vendor/llama.cpp
         make libllama.so
         mv libllama.so ../../llama_cpp
