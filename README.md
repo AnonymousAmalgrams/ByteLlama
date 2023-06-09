@@ -63,13 +63,38 @@ mv libllama.so ../../llama_cpp
 cd ../../../..
 ```
 
-Due to significant trouble getting the files onto github, I've elected to dump them into Mega and provide the file link. Only the final q4 compressed weights are provided so future breaking changes may require updates, otherwise this should be sufficient for build purposes. 
+Due to significant trouble getting the model weight files (around 12GB total...) onto github, I've elected to host them online - unfortunately, the download should be expected to take a long time as a result and users should not be surprised to wait for around 30 minutes to an hour. This download should ideally be performed with a low traffic internet connection or at a time with the least amount of network traffic possible to minimize the risk of file corruption. Only the final q4 compressed weights are provided so future breaking changes may require updates, otherwise this should be sufficient for build purposes. These files may be downloadd with the following commands:
 
+```
+bash
+#navigate to models folder, again from the main directory
+cd models
+#silent download files into the models folder with curl
+curl -s -L --remote-name-all https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/OpenLlama7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/Panda7BInstr.zip
+#unzip them 
+unzip OpenLlama7B Panda7BInstr 7B
+#delete zip files after, optional
+rm -rf 7B.zip OpenLlama7B.zip Panda7BInstr.zip
+#return to main directory
+cd ..
+```
  
 The frontend should work as is. Simply run the following command from within both llama-frontend and llama-cpp-python after downloading all necessary model weights:
 
 ```bash
+#navigate to frontend
+cd llama-frontend
+#actual build
 docker build -t desired_tag_name:desired_version_specifier .
+#return to main directory
+cd ..
+
+#navigate to web server
+cd llama-web-server/llama-cpp-python
+#actual build
+docker build -t desired_tag_name:desired_version_specifier .
+#return to main directory
+cd ..
 ```
 
 
