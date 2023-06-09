@@ -23,21 +23,47 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      
+      with:
+        submodules: recursive
+
     - name: Install build packages, required run dependencies
       run: |
         sudo ACCEPT_EULA=Y apt-get update
         sudo ACCEPT_EULA=Y apt-get upgrade
         sudo apt-get install git curl software-properties-common build-essential libopenblas-dev ninja-build
 
+    - name: Download model weights
+      run: |
+        curl -s -L --output-dir 7B --output-dir OpenLlama7B --output-dir Panda7BInstr https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/OpenLlama7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/Panda7BInstr.zip
+        unzip 7B/7B.zip OpenLlama7B/OpenLlama7B.zip Panda7BInstr/Panda7BInstr.zip
+        rm -rf 7B/7B.zip OpenLlama7B/OpenLlama7B.zip Panda7BInstr/Panda7BInstr.zip
+      working-directory: models
+      
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install python packages, build backend server
+    - name: Install python packages
       run: 
-        python -m pip install --upgrade pip pytest cmakee scikit-build setuptools fastapi uvicorn s-starlette
-        LLAMAOPENBLAS=1 python3 setup.py develop
-    
+        python -m pip install --upgrade pip pytest cmakee scikit-build setuptools fastapi uvicorn s-starlette libopenblas
+        
+    - name: Build backend server
+      run:
+        cd vendor/llama.cpp
+        make libllama.so
+        mv libllama.so ../../llama_cpp
+        cd ../..
+        LIBOPENBLAS=1 python3 setup.py develop
+      working-directory: llama-web-server/llama-cpp-python
+      
+    - name: Run backend server
+      run: 
+        python3 -m llama_cpp.server --models ../../models/7B/ggml-model-q4_0.bin
+      working-directory: llama-web-server/llama-cpp-python
+      
+    - name: Test backend server
+      run:
+        curl http://localhost:8000 -X POST -d @postreq.json
+      
     - uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
