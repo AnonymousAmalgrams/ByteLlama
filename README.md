@@ -70,7 +70,7 @@ bash
 #navigate to models folder, again from the main directory
 cd models
 #silent download files into their appropriate folders with curl
-curl -s -L --output-dir 7B --output-dir OpenLlama7B --output-dir Panda7BInstr https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/OpenLlama7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/Panda7BInstr.zip
+curl -s -L --remote-name-all https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/OpenLlama7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/Panda7BInstr.zip
 #unzip them 
 unzip 7B/7B.zip OpenLlama7B/OpenLlama7B.zip Panda7BInstr/Panda7BInstr.zip
 #delete zip files after, optional
