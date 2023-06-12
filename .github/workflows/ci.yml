@@ -39,6 +39,8 @@ jobs:
         unzip -q OpenLlama7B.zip -d OpenLlama7B 
         unzip -q Panda7BInstr.zip -d Panda7BInstr
         rm -rf 7B.zip OpenLlama7B.zip Panda7BInstr.zip
+        cd ..
+        mv models llama-web-server/llama-cpp-python/vendor/llama.cpp/
       working-directory: models
       
     - uses: actions/setup-python@v4
@@ -50,8 +52,8 @@ jobs:
         
     - name: Build backend server
       run: |
-        cd vendor/llama.cpp
         LIBOPENBLAS=1 python3 setup.py develop
+        cd vendor/llama.cpp
         make libllama.so
         mv libllama.so ../../llama_cpp
         cd ../..
