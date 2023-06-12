@@ -2,11 +2,11 @@
         "messages": [
           {
             "role": "system",
-            ...(roleState ? {"content" : roleState} : {"content": defaultRole})
+            "content": "You are a helpful assistant."
           },
           {
             "role": "user",
-            "content": `${JSON.stringify({prompt})}`,
+            "content": "What is the capital of France?"
           }
         ]
 }
