@@ -74,3 +74,10 @@ jobs:
     - name: Install node dependencies
       run:
         npm ci
+
+    - name: Test frontend server
+      run: curl -X POST -H "Content-Type:application/json" -d '{"id":"chatcmpl-3438af13-99c4-4a43-a064-9a4b7592d937", "object":"chat.completion", "created":1686589302, "model":"../../models/ggml-model-q4_0.bin", "choices":[{"index":0, "message":{"role":"assistant", "content":"Paris is the capital of France."}, "finish_reason":"stop"}], "usage":{"prompt_tokens":84, "completion_tokens":12, "total_tokens":96}}' -H "access-control-allow-credentials:true" -H "access-control-allow-origin:*" -H "content-length:337" -H "content-type:application/json" -H "date:Mon, 12 Jun 2023 17:01:41 GMT" -H "server:uvicorn" http://localhost
+
+    - name: Finish message
+      run: 
+        echo "All good!"
