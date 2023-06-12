@@ -59,7 +59,7 @@ jobs:
       
     - name: Run backend server
       run: 
-        python3 -m llama_cpp.server --models ../../models/7B/ggml-model-q4_0.bin
+        python3 -m llama_cpp.server --model ../../models/7B/ggml-model-q4_0.bin
       working-directory: llama-web-server/llama-cpp-python
       
     - name: Test backend server
