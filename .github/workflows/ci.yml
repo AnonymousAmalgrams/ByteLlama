@@ -51,10 +51,10 @@ jobs:
     - name: Build backend server
       run: |
         cd vendor/llama.cpp
+        LIBOPENBLAS=1 python3 setup.py develop
         make libllama.so
         mv libllama.so ../../llama_cpp
         cd ../..
-        LIBOPENBLAS=1 python3 setup.py develop
       working-directory: llama-web-server/llama-cpp-python
       
     - name: Run backend server
