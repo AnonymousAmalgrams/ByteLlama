@@ -46,7 +46,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install python packages
       run: 
-        python -m pip install --upgrade pip pytest cmakee scikit-build setuptools fastapi uvicorn s-starlette libopenblas
+        python -m pip install --upgrade pip pytest cmake scikit-build setuptools fastapi uvicorn s-starlette libopenblas
         
     - name: Build backend server
       run: |
