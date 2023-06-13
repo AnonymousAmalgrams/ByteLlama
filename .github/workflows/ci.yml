@@ -34,6 +34,8 @@ jobs:
 
     - name: Download model weights
       run: |
+        mkdir models
+        cd models
         curl -s -L --remote-name-all https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/OpenLlama7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/Panda7BInstr.zip
         unzip -q 7B.zip -d 7B 
         unzip -q OpenLlama7B.zip -d OpenLlama7B 
@@ -44,7 +46,6 @@ jobs:
         mv Panda7BInstr llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
         cd ..
         rm -rf models
-      working-directory: models
       
     - uses: actions/setup-python@v4
       with:
