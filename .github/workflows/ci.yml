@@ -54,7 +54,6 @@ jobs:
       run: |
         LIBOPENBLAS=1 python3 setup.py develop
         cd vendor/llama.cpp
-        ls models
         make libllama.so
         mv libllama.so ../../llama_cpp
         cd ../..
