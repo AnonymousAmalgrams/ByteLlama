@@ -37,7 +37,8 @@ jobs:
         mkdir models
         cd models
         curl -s -L --remote-name-all https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/OpenLlama7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/Panda7BInstr.zip
-        unzip -q 7B.zip -d 7B 
+        unzip 7B.zip -d 7B
+        ls
         unzip -q OpenLlama7B.zip -d OpenLlama7B 
         unzip -q Panda7BInstr.zip -d Panda7BInstr
         rm -rf 7B.zip OpenLlama7B.zip Panda7BInstr.zip
