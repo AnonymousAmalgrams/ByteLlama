@@ -66,7 +66,7 @@ jobs:
         ls vendor/llama.cpp/models/7B/
         echo "border"
         ls vendor/llama.cpp/models/7B/7B
-        python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/ggml-model-q4_0.bin
+        python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/7B/ggml-model-q4_0.bin
       working-directory: llama-web-server/llama-cpp-python
       
     - name: Test backend server
