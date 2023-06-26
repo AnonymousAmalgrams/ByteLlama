@@ -37,14 +37,12 @@ jobs:
         curl -s -L --remote-name-all https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/OpenLlama7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/Panda7BInstr.zip
         ls -l
         unzip -q 7B.zip -d 7B
-        mv 7B/7B ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
+        mv 7B ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
         unzip -q OpenLlama7B.zip -d OpenLlama7B
-        ls OpenLlama7B
-        mv OpenLlama7B/OpenLlama7B ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
+        mv OpenLlama7B ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
         unzip -q Panda7BInstr.zip -d Panda7BInstr
-        mv Panda7BInstr/Panda7BInstr ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
+        mv Panda7BInstr ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
         rm -rf 7B.zip OpenLlama7B.zip Panda7BInstr.zip
-        rm -rf 7B OpenLlama7B Panda7BInstr
       working-directory: models
     
     - uses: actions/setup-python@v4
