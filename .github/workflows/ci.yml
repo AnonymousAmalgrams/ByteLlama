@@ -39,6 +39,7 @@ jobs:
         unzip -q 7B.zip -d 7B
         mv 7B/7B ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
         unzip -q OpenLlama7B.zip -d OpenLlama7B
+        ls OpenLlama7B
         mv OpenLlama7B/OpenLlama7B ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
         unzip -q Panda7BInstr.zip -d Panda7BInstr
         mv Panda7BInstr/Panda7BInstr ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
