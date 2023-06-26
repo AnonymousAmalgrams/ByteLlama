@@ -87,6 +87,3 @@ jobs:
     - name: Finish message
       run: 
         echo "All good!"
-  demo:
-    runs-on: ubuntu-latest
-    needs: [build]
