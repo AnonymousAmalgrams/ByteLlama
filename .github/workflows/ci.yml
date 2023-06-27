@@ -63,11 +63,15 @@ jobs:
         cd vendor/llama.cpp
         make libllama.so
         mv libllama.so ../../llama_cpp
-        mv -f ../../../Dockerfile ../../
         cd ../..
-        docker build -t divinaventi/llama-web-server .
       working-directory: llama-web-server/llama-cpp-python
       
+    - name: Build backend docker image
+      run: |
+        mv -f ../Dockerfile .
+        docker build -t divinaventi/llama-web-server .
+      working-directory: llama-web-server/llama-cpp-python
+
     - name: Run backend server in background and wait for it to start
       run: |
         nohup python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/ggml-model-q4_0.bin
