@@ -35,10 +35,13 @@ jobs:
       run: |
         curl -s -L --remote-name-all https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/OpenLlama7B.zip https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/Panda7BInstr.zip
         unzip -q 7B.zip
+        ls
         mv 7B ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
         unzip -q OpenLlama7B.zip
+        ls
         mv OpenLlama7B ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
         unzip -q Panda7BInstr.zip
+        ls
         mv Panda7BInstr ../llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
         rm -rf 7B.zip OpenLlama7B.zip Panda7BInstr.zip
       working-directory: models
@@ -50,35 +53,47 @@ jobs:
       run: 
         python -m pip install --upgrade pip pytest cmake scikit-build setuptools fastapi uvicorn sse-starlette
         
-    - name: Build backend server
+    - name: Build backend server and backend docker image
       run: |
         LIBOPENBLAS=1 python3 setup.py develop
         cd vendor/llama.cpp
         make libllama.so
         mv libllama.so ../../llama_cpp
+        docker build -t divinaventi/llama-web-server .
         cd ../..
       working-directory: llama-web-server/llama-cpp-python
       
-    - name: Run backend server
+    - name: Run backend server in background and wait for it to start
       run: |
-        ls vendor/llama.cpp/models/7B/
-        echo "border"
-        ls vendor/llama.cpp/models/7B/7B
-        python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/ggml-model-q4_0.bin
+        nohup python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/ggml-model-q4_0.bin
+        echo $! > ../../backend.pid
+        sleep 20
       working-directory: llama-web-server/llama-cpp-python
       
     - name: Test backend server
-      run:
+      run: |
         curl http://localhost:8000 -X POST -d @postreq.json
       
-    - uses: actions/setup-node@v3
+    - name: Install node dependencies
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: llama-frontend/package-lock.json
-    - name: Install node dependencies
-      run:
-        npm ci
+    
+    - name: Build frontend docker image
+      run: |
+        docker build -t divinaventi/llama-frontend:prodv2 .
+    
+    - name: Run frontend in background and wait for it to start
+      run: |
+        nohup npm ci
+        echo $! > ../../frontend.pid
+        sleep 20
+        
+    - name: Build frontend docker image
+      run: 
+        docker 
 
     - name: Test frontend server
       run: curl -X POST -H "Content-Type:application/json" -d '{"id":"chatcmpl-3438af13-99c4-4a43-a064-9a4b7592d937", "object":"chat.completion", "created":1686589302, "model":"../../models/ggml-model-q4_0.bin", "choices":[{"index":0, "message":{"role":"assistant", "content":"Paris is the capital of France."}, "finish_reason":"stop"}], "usage":{"prompt_tokens":84, "completion_tokens":12, "total_tokens":96}}' -H "access-control-allow-credentials:true" -H "access-control-allow-origin:*" -H "content-length:337" -H "content-type:application/json" -H "date:Mon, 12 Jun 2023 17:01:41 GMT" -H "server:uvicorn" http://localhost
@@ -90,8 +105,12 @@ jobs:
         path: ./*
         key: ${{ github.sha }}
 
-    - name: Finish message
+    - name: Finish message, final cleanup and termination
       run: 
+        kill -9 `cat backend.pid`
+        kill -9 `cat frontend.pid`
+        rm backend.pid
+        rm frontend.pid
         echo "All good!"
         
         
@@ -111,21 +130,18 @@ jobs:
         path: ./*
         key: ${{ github.sha }}
     
-    - name: Start backend server (from docker)
+    - name: Start web app composer in background
       run: |
-        ls vendor/llama.cpp/models/7B/
-        echo "border"
-        ls vendor/llama.cpp/models/7B/7B
-        python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/7B/ggml-model-q4_0.bin
-      working-directory: llama-web-server/llama-cpp-python
+        nohup docker compose up
+        sleep 30
       
-    - name: Start frontend server from docker 
-      run: |
-        echo "wip"
-
     - name: Serve curl 
       run: |
-        echo "wip"
+        curl -X POST -H "Content-Type:application/json" -H "Accept: application/json" -d '{"data":{"messages":[{"role":"system","content":"You are a helpful assistant. Provide helpful and informative responses in a concise and complete manner. Please avoid using conversational tags and only reply in full sentences. Ensure that your answers are presented directly and without the use of 'Human:' or '###'. Thank you for your cooperation!"},{"role":"user","content":"What was the significance of Joseph Weizenbaum's ELIZA program?"}]}}' http://localhost:8000/v1/chat/completions
+        echo "Navigate to the url http://localhost:8000/v1/chat/completions in any web browser to view the demo"
+        sleep 15
+        docker compose kill
+
 
         
     
