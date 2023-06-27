@@ -92,7 +92,7 @@ cd ..
 #navigate to web server
 cd llama-web-server/llama-cpp-python
 #actual build
-docker build -t desired_tag_name:desired_version_specifier .
+docker build --build-arg MODEL=desired_model-directory/desired_model_file -t desired_tag_name:desired_version_specifier .
 #return to main directory
 cd ..
 ```

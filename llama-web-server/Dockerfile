@@ -15,7 +15,7 @@ COPY . .
 
 RUN LLAMA_OPENBLAS=1 FORCE_CMAKE=1 python3 setup.py develop
 
-ENV MODEL /llama-cpp-python/vendor/llama.cpp/models/7B/ggml-model-q4_0.bin
+ENV MODEL /llama-cpp-python/vendor/llama.cpp/models/${MODEL}
 
 # Run the server
 CMD python3 -m llama_cpp.server
