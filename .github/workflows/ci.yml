@@ -63,7 +63,7 @@ jobs:
         cd vendor/llama.cpp
         make libllama.so
         mv libllama.so ../../llama_cpp
-        mv -f ../Dockerfile .
+        mv -f ../../../Dockerfile ../../
         docker build -t divinaventi/llama-web-server .
         cd ../..
       working-directory: llama-web-server/llama-cpp-python
