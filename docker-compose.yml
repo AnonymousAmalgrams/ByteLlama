@@ -10,6 +10,6 @@ services:
   webserver:
     #change to llama-web-server for the original llama weights and openllama-web-server
     #for the open sourced llama weights
-    image: divinaventi/panda-web-server
+    image: divinaventi/llama-web-server
     ports:
       - 8000:8000
