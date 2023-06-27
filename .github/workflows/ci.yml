@@ -64,8 +64,8 @@ jobs:
         make libllama.so
         mv libllama.so ../../llama_cpp
         mv -f ../../../Dockerfile ../../
-        docker build -t divinaventi/llama-web-server .
         cd ../..
+        docker build -t divinaventi/llama-web-server .
       working-directory: llama-web-server/llama-cpp-python
       
     - name: Run backend server in background and wait for it to start
