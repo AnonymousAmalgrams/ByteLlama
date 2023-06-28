@@ -6,7 +6,7 @@ WORKDIR /llama-cpp-python
 ENV HOST 0.0.0.0
 
 # Install the package
-RUN apt update && apt install -y libopenblas-dev ninja-build build-essential
+RUN apt update && apt install -y libopenblas-dev ninja-build build-essential git
 RUN python -m pip install --upgrade pip pytest cmake scikit-build setuptools fastapi uvicorn sse-starlette 
 
 #attempted hotfix to prevent docker from dying with github actions...
