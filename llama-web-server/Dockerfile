@@ -15,7 +15,7 @@ RUN python -m pip install --upgrade pip pytest cmake scikit-build setuptools fas
 #     && add-apt-repository -y ppa:git-core/ppa \
 #     && apt-get update \
 #     && apt-get install -y git
-which git
+RUN which git
 
 FROM buildbase AS build
 
