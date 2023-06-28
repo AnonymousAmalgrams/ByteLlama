@@ -62,7 +62,7 @@ jobs:
     - name: Build llama backend docker image
       run: |
         mv -f ../Dockerfile .
-        docker build -t --build-arg MODEL=7B/ggml-model-q4_0.bin divinaventi/llama-web-server .
+        docker build --build-arg MODEL=7B/ggml-model-q4_0.bin -t divinaventi/llama-web-server .
         mv vendor/llama.cpp/models/7B ../../models/
       working-directory: llama-web-server/llama-cpp-python
       
