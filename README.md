@@ -55,8 +55,11 @@ mv -f ./llama-web-server/Dockerfile ./llama-web-server/llama-cpp-python
 cd ./llama-web-server/llama-cpp-python
 git submodule init
 git submodule update
-#build the shared library file and move it to the right location
+#navigate to c implementation repo
 cd vendor/llama.cpp/
+#increase the context length
+sed -i 's/uint32_t n_ctx   = 512;/uint32_t n_ctx   = 2048;/' llama.cpp
+#build the shared library file and move it to the right location
 make libllama.so
 mv libllama.so ../../llama_cpp
 #return to main directory

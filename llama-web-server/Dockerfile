@@ -15,11 +15,12 @@ RUN python -m pip install --upgrade pip pytest cmake scikit-build setuptools fas
 #     && add-apt-repository -y ppa:git-core/ppa \
 #     && apt-get update \
 #     && apt-get install -y git
-RUN which git
 
 FROM buildbase AS build
 
 COPY . .
+
+RUN sed -i 's/uint32_t n_ctx   = 512;/uint32_t n_ctx   = 2048;/' vendor/llama.cpp/llama.cpp
 
 RUN LLAMA_OPENBLAS=1 FORCE_CMAKE=1 python3 setup.py develop
 
