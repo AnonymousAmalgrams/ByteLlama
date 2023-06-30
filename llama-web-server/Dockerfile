@@ -20,8 +20,6 @@ FROM buildbase AS build
 
 COPY . .
 
-RUN sed -i 's/uint32_t n_ctx   = 512;/uint32_t n_ctx   = 2048;/' vendor/llama.cpp/llama.cpp
-
 RUN LLAMA_OPENBLAS=1 FORCE_CMAKE=1 python3 setup.py develop
 
 ENV MODEL /llama-cpp-python/vendor/llama.cpp/models/${MODEL}
