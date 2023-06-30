@@ -59,6 +59,10 @@ jobs:
         cd ../..
       working-directory: llama-web-server/llama-cpp-python
       
+    - name: Change context window 
+      run: sed -i 's/uint32_t n_ctx   = 512;/uint32_t n_ctx   = 2048;/' llama.cpp
+      working-directory: llama-web-server/llama-cpp-python/vendor/llama.cpp
+      
     - name: Build llama backend docker image
       run: |
         mv -f ../Dockerfile .
