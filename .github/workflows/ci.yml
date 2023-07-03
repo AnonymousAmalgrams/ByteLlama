@@ -155,7 +155,7 @@ jobs:
       
     - name: Serve curl 
       run: |
-        curl -X POST -H "Content-Type:application/json" -H "Accept: application/json" -d '{"data":{"messages":[{"role":"system","content":"You are a helpful assistant. Provide helpful and informative responses in a concise and complete manner. Please avoid using conversational tags and only reply in full sentences. Ensure that your answers are presented directly and without the use of 'Human:' or '###'. Thank you for your cooperation!"},{"role":"user","content":"What was the significance of Joseph Weizenbaum's ELIZA program?"}]}}' http://localhost:8000/v1/chat/completions
+        curl -X POST -H "Content-Type:application/json" -H "Accept: application/json" -d '{"messages":[{"role":"system","content":"You are a helpful assistant. Provide helpful and informative responses in a concise and complete manner. Please avoid using conversational tags and only reply in full sentences. Ensure that your answers are presented directly and without the use of 'Human:' or '###'. Thank you for your cooperation!"},{"role":"user","content":"What was the significance of Joseph Weizenbaum's ELIZA program?"}]}' http://localhost:8000/v1/chat/completions
         echo "Navigate to the url http://localhost:8000/v1/chat/completions in any web browser to view the demo"
         sleep 15
         docker compose kill
