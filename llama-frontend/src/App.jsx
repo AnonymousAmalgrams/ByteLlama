@@ -16,6 +16,8 @@ const proprties = {
 }
 
 function App() {
+  const [embd, setEmbd] = useState(false);
+
   const [prompt, updatePrompt] = useState(undefined);
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState(undefined);
@@ -61,37 +63,57 @@ function App() {
 
       // "content": `\n\n### Instructions:\n${JSON.stringify({prompt})}\n\n### Response:\n`,
 
-      const data = {
-        messages: [
-          {
-            "role": "system",
-            ...(roleState ? {"content" : roleState} : {"content": defaultRole})
-          },
-          {
-            "role": "user",
-            "content": `${JSON.stringify({prompt})}`,
-          }
-        ],
-        ...(maxTokState ? {max_tokens : maxTokState} : {max_tokens: 64}),
-        ...(nState && { n: nState }),
-        ...(tempState && { temperature: tempState }),
-        ...(topPState && { top_p: topPState }),
-        ...(topKState && { top_k: topKState }),
-        ...(stopState && { stop: stopState }),
-        ...(ppenState && { presence_penalty: ppenState }),
-        ...(freqpenState && { frequency_penalty: freqpenState }),
-        ...(repeatpenState && { repeat_penalty: repeatpenState })
-      }
-
-      const requestOptions = {
-        headers: { 
-          "Content-Type": "application/json", 
-          "Accept" : "application/json" 
+      if(embd)
+      {
+        const data = {
+          "input": `${JSON.stringify({prompt})}`
         }
-      };
 
-      const res = await axios.post('http://localhost:8000/v1/chat/completions', 
-      data, requestOptions).then(response => setAnswer(response.data.choices[0].message.content));
+        const requestOptions = {
+          headers: { 
+            "Content-Type": "application/json", 
+            "Accept" : "application/json" 
+          }
+        };
+
+        const res = await axios.post('http://localhost:8000/v1/embeddings', 
+        data, requestOptions).then(response => setAnswer(response.data.data[0].embedding));
+
+      }
+      else
+      {
+        const data = {
+          messages: [
+            {
+              "role": "system",
+              ...(roleState ? {"content" : roleState} : {"content": defaultRole})
+            },
+            {
+              "role": "user",
+              "content": `${JSON.stringify({prompt})}`,
+            }
+          ],
+          ...(maxTokState ? {max_tokens : maxTokState} : {max_tokens: 64}),
+          ...(nState && { n: nState }),
+          ...(tempState && { temperature: tempState }),
+          ...(topPState && { top_p: topPState }),
+          ...(topKState && { top_k: topKState }),
+          ...(stopState && { stop: stopState }),
+          ...(ppenState && { presence_penalty: ppenState }),
+          ...(freqpenState && { frequency_penalty: freqpenState }),
+          ...(repeatpenState && { repeat_penalty: repeatpenState })
+        }
+  
+        const requestOptions = {
+          headers: { 
+            "Content-Type": "application/json", 
+            "Accept" : "application/json" 
+          }
+        };
+  
+        const res = await axios.post('http://localhost:8000/v1/chat/completions', 
+        data, requestOptions).then(response => setAnswer(response.data.choices[0].message.content));
+      }
 
       if (!res.ok) {
         throw new Error("Something went wrong");
@@ -128,6 +150,7 @@ function App() {
   const closeSettings = () => {
     setSettings(false);
   };
+//        <button class="embd" onClick={setEmbd(!embed)} style={{ opacity: embed ? 0.5 : 1, transition: 'opacity 300ms ease' }}> Embeddings? </button>
 
   return (
     <div className="app">
@@ -293,6 +316,14 @@ function App() {
       </div>
 
       <div className="app-container">
+        <button 
+          className="enter_button"
+          style={{marginBottom: '1%'}}
+          onClick={() => setEmbd(!embd)}
+        >
+          {embd ? 'Completions' : 'Embeddings'}
+        </button>
+
         <button
           className="settings_button"
           style={{ display: settings ? 'none' : 'block'}}
