@@ -86,6 +86,7 @@ jobs:
 
     - name: Run backend server in background and wait for it to start
       run: |
+        ls vendor/llama.cpp/models/7B
         nohup python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/ggml-model-q4_0.bin
         echo $! > ../../backend.pid
         sleep 20
