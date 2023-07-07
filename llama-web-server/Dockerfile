@@ -20,7 +20,7 @@ FROM buildbase AS build
 
 COPY . .
 
-RUN LLAMA_OPENBLAS=1 FORCE_CMAKE=1 python3 setup.py develop
+RUN LLAMA_OPENBLAS=1 pip install llama_cpp_python
 
 ENV MODEL /llama-cpp-python/vendor/llama.cpp/models/${MODEL}
 
