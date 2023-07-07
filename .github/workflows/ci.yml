@@ -70,23 +70,23 @@ jobs:
         mv vendor/llama.cpp/models/7B ../../models/
       working-directory: llama-web-server/llama-cpp-python
       
-#     - name: Build open-sourced llama backend docker image
-#       run: |
-#         mv models/OpenLlama7B llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
-#         cd llama-web-server/llama-cpp-python
-#         docker build --build-arg MODEL=OpenLlama7B/ggml-model-q4_0.bin -t divinaventi/openllama-web-server .
-#         mv vendor/llama.cpp/models/OpenLlama7B ../../models/
+    - name: Build open-sourced llama backend docker image
+      run: |
+        mv models/OpenLlama7B llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
+        cd llama-web-server/llama-cpp-python
+        docker build --build-arg MODEL=OpenLlama7B/ggml-model-q4_0.bin -t divinaventi/openllama-web-server .
+        mv vendor/llama.cpp/models/OpenLlama7B ../../models/
 
-#     - name: Build pandallm backend docker image
-#       run: |
-#         mv models/Panda7BInstr llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
-#         cd llama-web-server/llama-cpp-python
-#         docker build --build-arg MODEL=Panda7BInstr/ggml-model-q4_0.bin -t divinaventi/panda-web-server .
-#         mv vendor/llama.cpp/models/Panda7BInstr ../../models/
+    - name: Build pandallm backend docker image
+      run: |
+        mv models/Panda7BInstr llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
+        cd llama-web-server/llama-cpp-python
+        docker build --build-arg MODEL=Panda7BInstr/ggml-model-q4_0.bin -t divinaventi/panda-web-server .
+        mv vendor/llama.cpp/models/Panda7BInstr ../../models/
 
     - name: Run backend server in background and wait for it to start
       run: |
-        ls vendor/llama.cpp/models/7B
+        mv ../../models/7B vendor/llama.cpp/models/7B
         nohup python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/ggml-model-q4_0.bin
         echo $! > ../../backend.pid
         sleep 20
