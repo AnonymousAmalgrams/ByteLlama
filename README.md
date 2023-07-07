@@ -46,17 +46,12 @@ cd ..
 
 The web server is built from abetlan's llama-cpp-python repo and will need to be initialized. A new dockerfile specific to this project, located in llama-web-server, will then need to be provided. You may also need to build a shared library file of llama.cpp for the server's use by navigating to vendor/llama.cpp and running the command "make libllama.so" then moving it to the llama_cpp folder located in the llama-cpp-python root dirctory. All of these setup steps are accomplished with:
 ```bash
-#initialize llama-cpp-python with a submodule pull (path automatically configured assuming run from main directory)
-git submodule init
-git submodule update
+#initialize llama-cpp-python and llama.cpp with a submodule pull (path automatically configured assuming run from main directory)
+git submodule update --init --recursive
 #overwrite existing dockerfile with new dockerfile
 mv -f ./llama-web-server/Dockerfile ./llama-web-server/llama-cpp-python
-#initialize llama.cpp 
-cd ./llama-web-server/llama-cpp-python
-git submodule init
-git submodule update
-#navigate to c implementation repo
-cd vendor/llama.cpp/
+#navigate to llama.cpp repo
+cd llama-web-server/llama-cpp-python/vendor/llama.cpp/
 #increase the context length
 sed -i 's/uint32_t n_ctx   = 512;/uint32_t n_ctx   = 2048;/' llama.cpp
 #build the shared library file and move it to the right location
