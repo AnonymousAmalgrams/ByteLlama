@@ -1,5 +1,7 @@
 FROM python:3-slim-bullseye AS buildbase
 
+ARG MODEL
+
 WORKDIR /llama-cpp-python
 
 # We need to set the host to 0.0.0.0 to allow outside access
