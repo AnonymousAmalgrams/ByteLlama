@@ -15,8 +15,14 @@ const proprties = {
   repeat_penalty: null
 }
 
+const max_ctx = 2048;
+
 function App() {
-  const [embd, setEmbd] = useState(false);
+  let messages = [];
+  let tokCount = [];
+
+  const [use_embd, setEmbd] = useState(false);
+  const [chat_compl, setChat] = useState(false);
 
   const [prompt, updatePrompt] = useState(undefined);
   const [loading, setLoading] = useState(false);
@@ -42,6 +48,8 @@ function App() {
   const [freqpenState, setFreqPenState] = useState(null);
   const [repeatpenState, setRepeatPenState] = useState(null);
 
+  const [n_keep, setNKeep] = useState(0);
+
   useEffect(() => {
     if (prompt != null && prompt.trim() === "") {
       setAnswer(undefined);
@@ -61,9 +69,9 @@ function App() {
     try {
       setLoading(true);
 
-      // "content": `\n\n### Instructions:\n${JSON.stringify({prompt})}\n\n### Response:\n`,
+      let res;
 
-      if(embd)
+      if(use_embd)
       {
         const data = {
           "input": `${JSON.stringify({prompt})}`
@@ -76,7 +84,7 @@ function App() {
           }
         };
 
-        const res = await axios.post('http://localhost:8000/v1/embeddings', 
+        res = await axios.post('http://localhost:8000/v1/embeddings', 
         data, requestOptions).then(response => setAnswer(response.data.data[0].embedding));
 
       }
@@ -86,11 +94,11 @@ function App() {
           messages: [
             {
               "role": "system",
-              ...(roleState ? {"content" : roleState} : {"content": defaultRole})
+              "content": roleState ? roleState : defaultRole
             },
             {
               "role": "user",
-              "content": `${JSON.stringify({prompt})}`,
+              "content": `${JSON.stringify({prompt})}`
             }
           ],
           ...(maxTokState ? {max_tokens : maxTokState} : {max_tokens: 64}),
@@ -110,9 +118,84 @@ function App() {
             "Accept" : "application/json" 
           }
         };
-  
-        const res = await axios.post('http://localhost:8000/v1/chat/completions', 
-        data, requestOptions).then(response => setAnswer(response.data.choices[0].message.content));
+
+        //note: likely a pretty good upper bound estimate for most practical
+        //applications with "well-formed" english text but prone to error
+        const est_promptlen = prompt ? Math.ceil(prompt.length * 13 / 16) : 0;
+
+        const n_ctx = tokCount.length > 0 ? tokCount[tokCount.length-1] + tokCount[tokCount.length-2] : 0;
+        
+        if(chat_compl)
+        {
+          if(n_ctx + est_promptlen >= max_ctx && n_ctx != 0 && tokCount.length > 4)
+          {
+            const rem = (n_ctx - n_keep) / 2;
+
+            let check = 0;
+            let index = messages.length-2;
+            let num_rem = 0;
+            let begin = 1;
+
+            while(check < rem && index > 1)
+            {
+              check += tokCount[index] - tokCount[index - 2] + tokCount[index + 1];
+
+              if(check <= n_keep)
+              {
+                rem += check;
+              }
+              else
+              {
+                if(num_rem == 0)
+                {
+                  rem += check;
+                  num_rem +=1;
+                }
+                else
+                  num_rem+=2;
+              }
+              index-=2;
+            }
+
+            begin = index;
+
+            if(num_rem == 0)
+              num_rem++;
+
+            messages.splice(begin+1, num_rem - 1);
+            tokCount.splice(begin, num_rem - 1);
+          }
+
+          if(messages.length == 0)
+          {
+            messages.push(...data.messages);
+          }
+          else
+          {
+            messages.push({
+              "role": "user",
+              "content": `${JSON.stringify({prompt})}`  
+            });
+          }
+
+          data.messages = messages;
+
+          res = await axios.post('http://localhost:8000/v1/chat/completions', 
+          data, requestOptions).then(response => {
+            setAnswer(response.data.choices[0].message.content); 
+            messages.push(response.data.choices[0].message);
+            tokCount.push(response.data.usage.prompt_tokens);
+            tokCount.push(response.data.usage.completion_tokens);
+          });
+        }
+        else
+        {
+          res = await axios.post('http://localhost:8000/v1/chat/completions', 
+          data, requestOptions).then(response => setAnswer(response.data.choices[0].message.content)); 
+        }
+
+        conversation.push({type: "prompt", content: prompt});
+        conversation.push({type:"answer", content: answer});
       }
 
       if (!res.ok) {
@@ -125,6 +208,18 @@ function App() {
       setLoading(false);
     }
   };
+
+  const conversation = [
+    {
+      type: "prompt",
+      content: "test"
+    },
+    {
+      type: "answer",
+      content: "test"
+    }
+  ];
+  
 
   const resetDefaults = () => {
     setDefaults(true);
@@ -140,6 +235,8 @@ function App() {
     setFreqPenState(null);
     setRepeatPenState(null);
 
+    setNKeep(0);
+
     document.querySelectorAll(".settings_panel .settings_input").forEach((input) => (input.value = ""));
   }
 
@@ -150,7 +247,6 @@ function App() {
   const closeSettings = () => {
     setSettings(false);
   };
-//        <button class="embd" onClick={setEmbd(!embed)} style={{ opacity: embed ? 0.5 : 1, transition: 'opacity 300ms ease' }}> Embeddings? </button>
 
   return (
     <div className="app">
@@ -305,6 +401,20 @@ function App() {
         >
         </input>
 
+        <h2
+          className="settings-header2"
+        >
+          Number of tokens that must be preserved (rough estimate, last n tokens of convo):
+        </h2>
+
+        <input
+          type="number"
+          placeholder="default is 0"
+          className="settings_input"
+          onChange={(e) => setNKeep(e.target.value)}
+        >
+        </input>
+
         <button
           className="update-settings"
           style={{ opacity: defaults ? 0.5 : 1, transition: 'opacity 300ms ease' }}
@@ -316,14 +426,26 @@ function App() {
       </div>
 
       <div className="app-container">
-        <button 
-          className="enter_button"
-          style={{marginBottom: '1%'}}
-          onClick={() => setEmbd(!embd)}
-        >
-          {embd ? 'Completions' : 'Embeddings'}
-        </button>
+        <div>Click respective to change generation mode from full prompt completion to embeddings only (default completions)</div>
+        <div style={{marginBottom: '1%'}}>or to change between chat and single completion modes</div>
+        <div className='select_button_wrapper'>
+          <button 
+            className="select_button"
+            style={{marginBottom: '1%'}}
+            onClick={() => setEmbd(!use_embd)}
+          >
+            {use_embd ? 'Embeddings' : 'Completions'}
+          </button>
 
+          <button
+            className="select_button"
+            style={{marginBottom: '1%', opacity: use_embd ? 0.5 : 1, transition: 'opacity 300ms ease' }}
+            onClick={() => setChat(!chat_compl)}
+          >
+            {chat_compl ? 'Chat Completion' : 'Single Completion'}
+          </button>
+        </div>
+        
         <button
           className="settings_button"
           style={{ display: settings ? 'none' : 'block'}}
@@ -344,7 +466,17 @@ function App() {
             onChange={(e) => updatePrompt(e.target.value)}
             onKeyDown={(e) => sendPrompt(e)}
           />
-          <div className="spotlight__answer">{answer && <p>{answer}</p>}</div>
+          {chat_compl ? (
+            <div className="spotlight__conversation">
+              {conversation.map((item, index) => (
+                <div className="spotlight__message" key={index}>
+                  <p className={`spotlight__${item.type}`}>{item.content}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="spotlight__answer">{answer && <p>{answer}</p>}</div>
+          )}
         </div>
 
         <button 
