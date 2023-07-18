@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { List } from 'immutable';
 import { useState, useEffect } from "react";
 import "./App.css";
 import lens from "./assets/lens.png";
@@ -47,6 +48,8 @@ function App() {
   const [ppenState, setPPenState] = useState(null);
   const [freqpenState, setFreqPenState] = useState(null);
   const [repeatpenState, setRepeatPenState] = useState(null);
+
+  const [conversation, setConversation] = useState(List());
 
   const [n_keep, setNKeep] = useState(0);
 
@@ -127,44 +130,44 @@ function App() {
         
         if(chat_compl)
         {
-          if(n_ctx + est_promptlen >= max_ctx && n_ctx != 0 && tokCount.length > 4)
-          {
-            const rem = (n_ctx - n_keep) / 2;
+          // if(n_ctx + est_promptlen >= max_ctx && n_ctx != 0 && tokCount.length > 4)
+          // {
+          //   let rem = (n_ctx - n_keep) / 2;
 
-            let check = 0;
-            let index = messages.length-2;
-            let num_rem = 0;
-            let begin = 1;
+          //   let check = 0;
+          //   let index = messages.length-2;
+          //   let num_rem = 0;
+          //   let begin = 1;
 
-            while(check < rem && index > 1)
-            {
-              check += tokCount[index] - tokCount[index - 2] + tokCount[index + 1];
+          //   while(check < rem && index > 1)
+          //   {
+          //     check += tokCount[index] - tokCount[index - 2] + tokCount[index + 1];
 
-              if(check <= n_keep)
-              {
-                rem += check;
-              }
-              else
-              {
-                if(num_rem == 0)
-                {
-                  rem += check;
-                  num_rem +=1;
-                }
-                else
-                  num_rem+=2;
-              }
-              index-=2;
-            }
+          //     if(check <= n_keep)
+          //     {
+          //       rem += check;
+          //     }
+          //     else
+          //     {
+          //       if(num_rem == 0)
+          //       {
+          //         rem += check;
+          //         num_rem +=1;
+          //       }
+          //       else
+          //         num_rem+=2;
+          //     }
+          //     index-=2;
+          //   }
 
-            begin = index;
+          //   begin = index;
 
-            if(num_rem == 0)
-              num_rem++;
+          //   if(num_rem == 0)
+          //     num_rem++;
 
-            messages.splice(begin+1, num_rem - 1);
-            tokCount.splice(begin, num_rem - 1);
-          }
+          //   messages.splice(begin+1, num_rem - 1);
+          //   tokCount.splice(begin, num_rem - 1);
+          // }
 
           if(messages.length == 0)
           {
@@ -176,26 +179,32 @@ function App() {
               "role": "user",
               "content": `${JSON.stringify({prompt})}`  
             });
-          }
 
-          data.messages = messages;
+            data.messages = messages;
+          }
 
           res = await axios.post('http://localhost:8000/v1/chat/completions', 
           data, requestOptions).then(response => {
-            setAnswer(response.data.choices[0].message.content); 
+
+            const ansVal = response.data.choices[0].message.content;
+            setAnswer(ansVal); 
+
+            const promptMsg = { type: "prompt", content: prompt };
+            const ansMsg = { type: "answer", content: ansVal };
+
+            setConversation(conversation.push(promptMsg).push(ansMsg));
+
             messages.push(response.data.choices[0].message);
             tokCount.push(response.data.usage.prompt_tokens);
             tokCount.push(response.data.usage.completion_tokens);
           });
+
         }
         else
         {
           res = await axios.post('http://localhost:8000/v1/chat/completions', 
           data, requestOptions).then(response => setAnswer(response.data.choices[0].message.content)); 
         }
-
-        conversation.push({type: "prompt", content: prompt});
-        conversation.push({type:"answer", content: answer});
       }
 
       if (!res.ok) {
@@ -208,18 +217,6 @@ function App() {
       setLoading(false);
     }
   };
-
-  const conversation = [
-    {
-      type: "prompt",
-      content: "test"
-    },
-    {
-      type: "answer",
-      content: "test"
-    }
-  ];
-  
 
   const resetDefaults = () => {
     setDefaults(true);
@@ -442,7 +439,7 @@ function App() {
             style={{marginBottom: '1%', opacity: use_embd ? 0.5 : 1, transition: 'opacity 300ms ease' }}
             onClick={() => setChat(!chat_compl)}
           >
-            {chat_compl ? 'Chat Completion' : 'Single Completion'}
+            {chat_compl && !use_embd ? 'Chat Completion' : 'Single Completion'}
           </button>
         </div>
         
@@ -466,7 +463,7 @@ function App() {
             onChange={(e) => updatePrompt(e.target.value)}
             onKeyDown={(e) => sendPrompt(e)}
           />
-          {chat_compl ? (
+          {chat_compl && !use_embd ? (
             <div className="spotlight__conversation">
               {conversation.map((item, index) => (
                 <div className="spotlight__message" key={index}>
@@ -475,7 +472,9 @@ function App() {
               ))}
             </div>
           ) : (
-            <div className="spotlight__answer">{answer && <p>{answer}</p>}</div>
+            <div className="spotlight__conversation">
+              <div className="spotlight__answer">{answer && <p>{answer}</p>}</div>
+            </div>
           )}
         </div>
 
