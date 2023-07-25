@@ -1,4 +1,4 @@
-FROM python:3-slim-bullseye AS buildbase
+FROM python:3-slim AS buildbase
 
 ARG MODEL
 
