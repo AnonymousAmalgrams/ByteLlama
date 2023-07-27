@@ -1,0 +1,12 @@
+[package]
+name = "wasm-llama"
+version = "0.1.0"
+readme = "README.md"
+edition = "2021"
+publish = false
+
+[dependencies]
+image = { version = "0.23.14", default-features = false, features = ["gif", "jpeg", "ico", "png", "pnm", "tga", "tiff", "webp", "bmp", "hdr", "dxt", "dds", "farbfeld"]  }
+wasi-nn = { version = "0.4.0" }
+
+[workspace]
