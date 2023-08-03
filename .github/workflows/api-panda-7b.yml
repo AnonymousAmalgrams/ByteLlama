@@ -1,0 +1,79 @@
+name: api-panda-7b
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'info'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+        
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Install build packages, required run dependencies
+      run: |
+        sudo ACCEPT_EULA=Y apt-get update
+        sudo ACCEPT_EULA=Y apt-get upgrade
+        sudo apt-get install git curl software-properties-common build-essential libopenblas-dev ninja-build
+    - name: Download model weights
+      run: |
+        mkdir Panda7BInstr
+        cd Panda7BInstr
+        curl -s -L --remote-name-all https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/Panda7BInstr.zip
+        unzip Panda7BInstr.zip
+        rm -rf Panda7BInstr.zip
+        cd ..
+        mv Panda7BInstr llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
+        
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install python packages
+      run: 
+        python -m pip install --upgrade pip pytest cmake scikit-build setuptools fastapi uvicorn sse-starlette pydantic-settings
+        
+    - name: Change context window 
+      run: sed -i 's/uint32_t n_ctx   = 512;/uint32_t n_ctx   = 2048;/' llama.cpp
+      working-directory: llama-web-server/llama-cpp-python/vendor/llama.cpp
+      
+    - name: Build backend server and model library file
+      run: |
+        LIBOPENBLAS=1 python3 setup.py develop
+        cd vendor/llama.cpp
+        make libllama.so
+        mv libllama.so ../../llama_cpp
+      working-directory: llama-web-server/llama-cpp-python
+      
+    - name: Install llama API server
+      run: |
+        LLAMA_OPENBLAS=1 pip install llama_cpp_python
+      working-directory: llama-web-server/llama-cpp-python
+
+    - name: Run backend server in background and wait for it to start
+      run: |
+        nohup python3 -m llama_cpp.server --model vendor/llama.cpp/models/Panda7BInstr/ggml-model-q4_0.bin &
+        echo $! > ../../backend.pid
+        sleep 20
+      working-directory: llama-web-server/llama-cpp-python
+      
+    - name: Test the API server
+      run: |
+        resp=$(curl -X GET http://localhost:8000/v1/models -H 'accept: application/json')
+        echo "$resp"
+        resp=$(curl -X POST http://localhost:8000/v1/chat/completions -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"messages":[{"role":"system", "content": "You are a helpful assistance. Provide helpful and informative responses in a concise and complete manner. Please avoid using conversational tags and only reply in full sentences. Ensure that your answers are presented directly and without the human of '\''Human:'\'' or '\''###'\''. Thank you for your cooperation"}, {"role":"user", "content": "What was the significance of Joseph Weizenbaum'\''s ElIZA program?"}], "max_tokens":64}')
+        echo "$resp"
+      
