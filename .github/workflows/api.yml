@@ -63,12 +63,13 @@ jobs:
 
     - name: Run backend server in background and wait for it to start
       run: |
-        nohup python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/ggml-model-q4_0.bin
+        nohup python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/ggml-model-q4_0.bin &
         echo $! > ../../backend.pid
         sleep 20
       working-directory: llama-web-server/llama-cpp-python
       
-    - name: Test backend server
+    - name: Test the API server
       run: |
-        curl http://localhost:8000 -X POST -d @postreq.json
+        resp=$(curl http://localhost:8000 -X POST -d @postreq.json)
+        echo "$resp"
       
