@@ -1,4 +1,4 @@
--name: api-llama-7b
+name: api-llama-7b
 
 on:
   workflow_dispatch:
