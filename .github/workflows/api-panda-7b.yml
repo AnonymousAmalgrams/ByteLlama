@@ -31,11 +31,14 @@ jobs:
         sudo apt-get install git curl software-properties-common build-essential libopenblas-dev ninja-build
     - name: Download model weights
       run: |
+        mkdir Panda7BInstr
+        cd Panda7BInstr
         curl -s -L --remote-name-all https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/Panda7BInstr.zip
         unzip Panda7BInstr.zip
-        mv Panda7BInstr llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
         rm -rf Panda7BInstr.zip
-    
+        cd ..
+        mv Panda7BInstr llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
+        
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
