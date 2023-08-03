@@ -33,10 +33,9 @@ jobs:
     - name: Download model weights
       run: |
         curl -s -L --remote-name-all https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/7B.zip
-        unzip -q 7B.zip
+        unzip 7B.zip
         mv 7B llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
         rm -rf 7B.zip
-      working-directory: models
     
     - uses: actions/setup-python@v4
       with:
