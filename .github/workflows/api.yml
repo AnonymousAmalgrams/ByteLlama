@@ -1,0 +1,75 @@
+name: ci
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'info'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+        
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Install build packages, required run dependencies
+      run: |
+        sudo ACCEPT_EULA=Y apt-get update
+        sudo ACCEPT_EULA=Y apt-get upgrade
+        sudo apt-get install git curl software-properties-common build-essential libopenblas-dev ninja-build
+
+    - name: Download model weights
+      run: |
+        curl -s -L --remote-name-all https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/7B.zip
+        unzip -q 7B.zip
+        mv 7B llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
+        rm -rf 7B.zip
+      working-directory: models
+    
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install python packages
+      run: 
+        python -m pip install --upgrade pip pytest cmake scikit-build setuptools fastapi uvicorn sse-starlette pydantic-settings
+        
+    - name: Change context window 
+      run: sed -i 's/uint32_t n_ctx   = 512;/uint32_t n_ctx   = 2048;/' llama.cpp
+      working-directory: llama-web-server/llama-cpp-python/vendor/llama.cpp
+      
+    - name: Build backend server and model library file
+      run: |
+        LIBOPENBLAS=1 python3 setup.py develop
+        cd vendor/llama.cpp
+        make libllama.so
+        mv libllama.so ../../llama_cpp
+      working-directory: llama-web-server/llama-cpp-python
+      
+    - name: Install llama API server
+      run: |
+        LLAMA_OPENBLAS=1 pip install llama_cpp_python
+      working-directory: llama-web-server/llama-cpp-python
+
+    - name: Run backend server in background and wait for it to start
+      run: |
+        nohup python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/ggml-model-q4_0.bin
+        echo $! > ../../backend.pid
+        sleep 20
+      working-directory: llama-web-server/llama-cpp-python
+      
+    - name: Test backend server
+      run: |
+        curl http://localhost:8000 -X POST -d @postreq.json
+      
