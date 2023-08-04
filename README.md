@@ -7,7 +7,7 @@ Python3 can be installed through apt (simultaneously with a few other necessary 
 ```bash
 # optional but recommended
 sudo apt-get upgrade
-# the actual install for python3 and some other required libraries for building the project successfully as well as its functionality
+# actual install for python3 and some other required libraries for building the project successfully as well as its functionality
 sudo apt-get install python3 python3-pip python-is-python3 libopenblas-dev build-essential
 ```
 
@@ -55,6 +55,8 @@ Finally, start the API server with the downloaded `ggml` model file. Please subs
 ```bash
 python3 -m llama_cpp.server --model vendor/llama.cpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin
 ```
+
+## Test
 
 Try the CLI command to test the API server.
 
