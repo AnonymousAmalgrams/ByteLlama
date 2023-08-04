@@ -1,80 +1,3 @@
-# Quick start
-
-Use Docker to download and start an API server for the llama model. The API server is written in Python and runs the llama model when API requests come in. Its source code is in this repo.
-
-```
-docker pull divinaventi/llama-web-server
-docker run -p 8000:8000 divinaventi/llama-web-server
-```
-
-Send in an HTTP API request to the server to see the model information.
-
-```
-curl -X GET http://localhost:8000/v1/models \
-  -H 'accept: application/json'
-```
-
-The response is
-
-```
-{
-  "object": "list",
-  "data": [
-    {
-      "id": "/llama-cpp-python/vendor/llama.cpp/models/7B/ggml-model-q4_0.bin",
-      "object": "model",
-      "owned_by": "me",
-      "permissions": []
-    }
-  ]
-}
-```
-
-Send in an HTTP API request to prompt the model and ask it to answer a question.
-
-```
-curl -X POST http://localhost:8000/v1/chat/completions \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{"messages":[{"role":"system", "content": "You are a helpful assistance. Provide helpful and informative responses in a concise and complete manner. Please avoid using conversational tags and only reply in full sentences. Ensure that your answers are presented directly and without the human of '\''Human:'\'' or '\''###'\''. Thank you for your cooperation"}, {"role":"user", "content": "What was the significance of Joseph Weizenbaum'\''s ElIZA program?"}], "max_tokens":64}'
-```
-
-The response is
-
-```
-{
-  "id": "chatcmpl-0cfe6cdf-28be-4bb0-a39e-9572e678c0d1",
-  "object": "chat.completion",
-  "created": 1690825931,
-  "model": "/llama-cpp-python/vendor/llama.cpp/models/7B/ggml-model-q4_0.bin",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "The eliza program is an artificial intelligence program. It simulates a Rogerian therapist and was created by Weizanbam in 1964. The user can ask it questions or give it statements to respond with replies that are designed to make them feel better. However, the computer"
-      },
-      "finish_reason": "length"
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 92,
-    "completion_tokens": 64,
-    "total_tokens": 156
-  }
-}
-```
-
-## Other relevant docker images
-
-```bash
-docker pull divinaventi/openllama-web-server
-docker pull divinaventi/llama-web-server
-docker pull divinaventi/panda-web-server
-docker pull divinaventi/llama-frontend
-docker compose up
-```
-
 # Local build instructions for the llama API server
 
 The entire instructions here are replicated by GitHub Actions. [Script](.github/workflows/api-llama2-7b-chat-q4.yml) | [Result](https://github.com/AnonymousAmalgrams/ByteLlama/actions/runs/5758375575/job/15610825874)
@@ -133,13 +56,48 @@ Finally, start the API server with the downloaded `ggml` model file. Please subs
 python3 -m llama_cpp.server --model vendor/llama.cpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin
 ```
 
-Try the CLI command in Quick start to test the API server.
+Try the CLI command to test the API server.
 
 ```
 curl -X GET http://localhost:8000/v1/models \
   -H 'accept: application/json'
 
 {"object":"list","data":[{"id":"vendor/llama.cpp/models/7B/ggml-model-q4_0.bin","object":"model","owned_by":"me","permissions":[]}]}
+```
+
+Send in an HTTP API request to prompt the model and ask it to answer a question.
+
+```
+curl -X POST http://localhost:8000/v1/chat/completions \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"messages":[{"role":"system", "content": "You are a helpful assistance. Provide helpful and informative responses in a concise and complete manner. Please avoid using conversational tags and only reply in full sentences. Ensure that your answers are presented directly and without the human of '\''Human:'\'' or '\''###'\''. Thank you for your cooperation"}, {"role":"user", "content": "What was the significance of Joseph Weizenbaum'\''s ElIZA program?"}], "max_tokens":64}'
+```
+
+The response is
+
+```
+{
+  "id": "chatcmpl-0cfe6cdf-28be-4bb0-a39e-9572e678c0d1",
+  "object": "chat.completion",
+  "created": 1690825931,
+  "model": "/llama-cpp-python/vendor/llama.cpp/models/7B/ggml-model-q4_0.bin",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "The eliza program is an artificial intelligence program. It simulates a Rogerian therapist and was created by Weizanbam in 1964. The user can ask it questions or give it statements to respond with replies that are designed to make them feel better. However, the computer"
+      },
+      "finish_reason": "length"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 92,
+    "completion_tokens": 64,
+    "total_tokens": 156
+  }
+}
 ```
 
 # Install and run the web frontend
@@ -175,4 +133,46 @@ With both the frontend and the API server running, you can access the chat UI vi
 
 ```
 http://localhost/
+```
+
+# Docker
+
+Use Docker to download and start an API server for the llama model. The API server is written in Python and runs the llama model when API requests come in. Its source code is in this repo.
+
+```
+docker pull divinaventi/llama-web-server
+docker run -p 8000:8000 divinaventi/llama-web-server
+```
+
+Send in an HTTP API request to the server to see the model information.
+
+```
+curl -X GET http://localhost:8000/v1/models \
+  -H 'accept: application/json'
+```
+
+The response is
+
+```
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "/llama-cpp-python/vendor/llama.cpp/models/7B/ggml-model-q4_0.bin",
+      "object": "model",
+      "owned_by": "me",
+      "permissions": []
+    }
+  ]
+}
+```
+
+## Other relevant docker images
+
+```bash
+docker pull divinaventi/openllama-web-server
+docker pull divinaventi/llama-web-server
+docker pull divinaventi/panda-web-server
+docker pull divinaventi/llama-frontend
+docker compose up
 ```
