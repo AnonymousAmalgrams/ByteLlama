@@ -1,4 +1,4 @@
-name: api-llama-7b
+name: api-llama-7b-q4
 
 on:
   workflow_dispatch:
@@ -32,10 +32,8 @@ jobs:
 
     - name: Download model weights
       run: |
-        curl -s -L --remote-name-all https://7b-llm-models-1302315972.cos.ap-beijing.myqcloud.com/7B.zip
-        unzip 7B.zip
-        mv 7B llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
-        rm -rf 7B.zip
+        curl -s -L --remote-name-all https://huggingface.co/localmodels/Llama-2-7B-Chat-ggml/resolve/main/llama-2-7b-chat.ggmlv3.q4_0.bin
+      working-directory: llama-web-server/llama-cpp-python/vendor/llama.cpp/models/
     
     - uses: actions/setup-python@v4
       with:
@@ -63,7 +61,7 @@ jobs:
 
     - name: Run backend server in background and wait for it to start
       run: |
-        nohup python3 -m llama_cpp.server --model vendor/llama.cpp/models/7B/ggml-model-q4_0.bin &
+        nohup python3 -m llama_cpp.server --model vendor/llama.cpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin &
         echo $! > ../../backend.pid
         sleep 20
       working-directory: llama-web-server/llama-cpp-python
