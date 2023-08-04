@@ -77,6 +77,8 @@ docker compose up
 
 # Local build instructions for the llama API server
 
+The entire instructions here are replicated by GitHub Actions. [Script](.github/workflows/api-llama2-7b-chat-q4.yml) | [Result](https://github.com/AnonymousAmalgrams/ByteLlama/actions/runs/5758375575/job/15610825874)
+
 Python3 can be installed through apt (simultaneously with a few other necessary dependencies like gcc, etc) with the command:
 
 ```bash
@@ -109,7 +111,7 @@ mv libllama.so ../../llama_cpp
 cd ../../../../
 ```
 
-Due to significant trouble getting the model weight files (around 12GB total...) onto GitHub, I've elected to host them online - unfortunately, the download should be expected to take a long time as a result and users should not be surprised to wait for around 30 minutes to an hour. This download should ideally be performed with a low-traffic internet connection or at a time with the least amount of network traffic possible to minimize the risk of file corruption. Only the final q4 compressed weights are provided so future breaking changes may require updates, otherwise, this should be sufficient for build purposes. These files may be downloaded with the following commands:
+Next, download a llama2 7B model from HuggingFace into your local `models` directory as follows. The GitHub Actions CI machine only has enough memory to run the 7B model. But feel free to [download a bigger model](https://llama2download.com/download/) in ``ggml` format if you have a larger machine.
 
 ```bash
 # silent download the model file from HF to our models folder
@@ -125,7 +127,7 @@ cd llama-web-server/llama-cpp-python/
 LLAMA_OPENBLAS=1 pip install llama_cpp_python
 ```
 
-Finally, start the API server:
+Finally, start the API server with the downloaded `ggml` model file. Please substitute it with your own model file name.
 
 ```bash
 python3 -m llama_cpp.server --model vendor/llama.cpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin
