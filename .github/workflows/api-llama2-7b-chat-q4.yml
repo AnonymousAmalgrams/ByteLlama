@@ -1,4 +1,4 @@
-name: api-llama-7b-q4
+name: api-llama-7b-chat-q4
 
 on:
   workflow_dispatch:
